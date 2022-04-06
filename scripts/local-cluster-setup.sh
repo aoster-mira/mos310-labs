@@ -1,14 +1,13 @@
 #!/bin/bash
 trap "exit" INT TERM ERR
 trap "kill 0" EXIT
-
+cd ~
 wget https://binary.mirantis.com/releases/get_container_cloud.sh
 chmod 0755 get_container_cloud.sh
 ./get_container_cloud.sh
-cd kaas-bootstrap
 echo "Download a new license file by logging in or creating an accunt at https://container-cloud.mirantis.com/. After log in Click download download license under Try On-Prem."
 read -p "Paste contents of mirantis license file: " mirantis_lic
-echo $mirantis_lic > mirantis.lic
+echo $mirantis_lic > ~/kaas-bootstrap/mirantis.lic
 
 
 export AWS_DEFAULT_REGION=us-east-1
@@ -21,11 +20,11 @@ echo "credential default/cloud-config not valid yet"
 echo "When you see the above message, use CTRL + c to quit the bootstrap."
 echo ""
 
-./bootstrap.sh all &
+~/kaas-bootstrap/bootstrap.sh all &
 while :
 do
-  echo " Starting up....."
-  if grep -q "credential default/cloud-config not valid yet" ./logs/kaas-bootstrap-cluster.log; then
+  echo "Waiting for bootstrap cluster ..."
+  if grep -q "credential default/cloud-config not valid yet" ~/kaas-bootstrap/logs/kaas-bootstrap-cluster.log; then
     echo "Local boostratp cluster created successfully. "
     echo "creating kubeconfig file..."
     ./bin/kind get kubeconfig --name=clusterapi > ~/mgmt-kc.yml
